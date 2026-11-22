@@ -95,6 +95,14 @@ npm run chain:deploy
 
 `chain:deploy` writes `contracts/broadcast/local.json` with the token and game addresses. The first Anvil account is the owner. The third Anvil account receives fees. Both keys are Anvil's published defaults and are used only against this local chain.
 
+Mint 100,000 fake USDC to a player. The amount is `100_000_000_000` units.
+
+```bash
+cast send "$USDC" "mint(address,uint256)" "$PLAYER" 100000000000 \
+  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
+  --rpc-url http://127.0.0.1:8545
+```
+
 ## Later
 
 - A browser table that signs with the player's own wallet

@@ -12,7 +12,10 @@
     "start": "node dist/server.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "chain:test": "forge test --root contracts",
+    "chain:deploy": "bash scripts/rps/deploy.sh",
+    "chain:e2e": "bash scripts/rps-local.sh"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.0",
