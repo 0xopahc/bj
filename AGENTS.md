@@ -26,7 +26,7 @@ A new browser page is an HTML file in `web/`, a script in `web/src/`, and a rout
 
 - `npm run typecheck` for the server and the pages.
 - `npm test` for blackjack. The suite starts Postgres through a testcontainer, so it needs Docker. Do not add a chain or browser test to that run.
-- `npm run chain:test` for the contracts. `npm run chain:e2e` plays the game on Anvil port `8545`. That port has to be free.
+- `npm run chain:test` for the contracts. `npm run chain:e2e` plays the game on Anvil port `8545`. That port has to be free. The shell checks and the `cast` commands are in `docs/rps/foundry.md`. A revert check has to match the custom error. A command that merely fails is not a pass.
 - `npm run rps:check` plays the page against a throwaway Anvil on port `18545` and Vite on port `4179`. It does not need Postgres. It restores `contracts/broadcast/local.json`.
 - Say which of these you did not run.
 

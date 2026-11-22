@@ -39,7 +39,7 @@ mine_past_reveal() {
 }
 
 open_match "$ROCK" "$PAPER" 1
-expect_revert "timeout before the reveal deadline" \
+expect_revert "timeout before the reveal deadline" "TooEarly()" \
   cast send --rpc-url "$RPC" --private-key "$FEE_KEY" "$RPS" "timeout(uint256)" 1
 send_ok "$ALICE_KEY" "$RPS" "reveal(uint256,uint8,bytes32)" 1 "$ROCK" "$SALT_A"
 mine_past_reveal

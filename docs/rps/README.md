@@ -74,7 +74,7 @@ Each task is finished only after `forge test` and a script against Anvil both pa
 
 ## Run the whole local game
 
-Anvil has to be free on port `8545`. The script starts it, deploys, plays every path, and stops it.
+Anvil has to be free on port `8545`. The script starts it, deploys, plays every path, and stops it. The shell commands, the bash checks, and the mistakes that make a check lie are in [foundry.md](foundry.md).
 
 ```bash
 npm run chain:e2e

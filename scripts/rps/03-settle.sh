@@ -36,12 +36,12 @@ play() {
   send_ok "$ALICE_KEY" "$RPS" "createMatch(bytes32,uint256)" "$commit_a" "$STAKE"
   send_ok "$BOB_KEY" "$RPS" "joinMatch(uint256,bytes32)" "$id" "$commit_b"
   if [[ "$id" == "1" ]]; then
-    expect_revert "wrong salt" \
+    expect_revert "wrong salt" "BadReveal()" \
       cast send --rpc-url "$RPC" --private-key "$ALICE_KEY" "$RPS" \
       "reveal(uint256,uint8,bytes32)" "$id" "$choice_a" "$SALT_B"
   fi
   send_ok "$ALICE_KEY" "$RPS" "reveal(uint256,uint8,bytes32)" "$id" "$choice_a" "$SALT_A"
-  expect_revert "settle waits for both reveals on match $id" \
+  expect_revert "settle waits for both reveals on match $id" "BadStatus()" \
     cast send --rpc-url "$RPC" --private-key "$FEE_KEY" "$RPS" "settle(uint256)" "$id"
   send_ok "$BOB_KEY" "$RPS" "reveal(uint256,uint8,bytes32)" "$id" "$choice_b" "$SALT_B"
   send_ok "$FEE_KEY" "$RPS" "settle(uint256)" "$id"

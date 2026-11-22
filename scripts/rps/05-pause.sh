@@ -24,12 +24,12 @@ send_ok "$ALICE_KEY" "$USDC" "mint(address,uint256)" "$BOB" "$FUND"
 send_ok "$ALICE_KEY" "$USDC" "approve(address,uint256)" "$RPS" "$FUND"
 send_ok "$BOB_KEY" "$USDC" "approve(address,uint256)" "$RPS" "$FUND"
 
-expect_revert "bob is not the owner" \
+expect_revert "bob is not the owner" "NotOwner()" \
   cast send --rpc-url "$RPC" --private-key "$BOB_KEY" "$RPS" "pause()"
 
 send_ok "$ALICE_KEY" "$RPS" "pause()"
 assert_eq "$(call_uint "$RPS" "paused()(bool)")" "true" "paused"
-expect_revert "create while paused" \
+expect_revert "create while paused" "GameIsPaused()" \
   cast send --rpc-url "$RPC" --private-key "$ALICE_KEY" "$RPS" "createMatch(bytes32,uint256)" "$COMMIT_A" "$STAKE"
 
 send_ok "$ALICE_KEY" "$RPS" "unpause()"
@@ -40,7 +40,7 @@ send_ok "$ALICE_KEY" "$RPS" "createMatch(bytes32,uint256)" "$COMMIT_ROCK" "$STAK
 send_ok "$BOB_KEY" "$RPS" "joinMatch(uint256,bytes32)" 2 "$COMMIT_SCISSORS"
 
 send_ok "$ALICE_KEY" "$RPS" "pause()"
-expect_revert "join while paused" \
+expect_revert "join while paused" "GameIsPaused()" \
   cast send --rpc-url "$RPC" --private-key "$BOB_KEY" "$RPS" "joinMatch(uint256,bytes32)" 1 "$COMMIT_SCISSORS"
 send_ok "$ALICE_KEY" "$RPS" "cancel(uint256)" 1
 send_ok "$ALICE_KEY" "$RPS" "claim()"
