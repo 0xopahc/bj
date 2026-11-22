@@ -6,3 +6,6 @@ coverage/
 .vite/
 playwright-report/
 test-results/
+contracts/out/
+contracts/cache/
+contracts/broadcast/
