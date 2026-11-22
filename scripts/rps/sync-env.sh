@@ -16,34 +16,43 @@ ROOT="$ROOT" JSON="$JSON" RPC="$RPC" ENV_FILE="$ENV_FILE" python3 - <<'PY'
 import json, os, re
 from pathlib import Path
 
+def write_env(path: Path, updates: dict[str, str]) -> None:
+    lines = path.read_text().splitlines() if path.exists() else []
+    seen: set[str] = set()
+    out: list[str] = []
+    for line in lines:
+        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)=", line)
+        if match and match.group(1) in updates:
+            key = match.group(1)
+            if key not in seen:
+                out.append(f"{key}={updates[key]}")
+                seen.add(key)
+            continue
+        out.append(line)
+    for key, value in updates.items():
+        if key not in seen:
+            out.append(f"{key}={value}")
+    path.write_text("\n".join(out).rstrip() + "\n")
+
 data = json.loads(Path(os.environ["JSON"]).read_text())
 rpc = os.environ["RPC"]
-updates = {
+vite = {
     "VITE_RPS_CHAIN_ID": str(data["chainId"]),
     "VITE_RPS_RPC_URL": rpc,
     "VITE_RPS_ADDRESS": data["rps"],
     "VITE_USDC_ADDRESS": data["usdc"],
-    "RPS_RPC_URL": rpc,
 }
-path = Path(os.environ["ENV_FILE"])
-lines = path.read_text().splitlines() if path.exists() else []
-seen = set()
-out = []
-for line in lines:
-    match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)=", line)
-    if match and match.group(1) in updates:
-        key = match.group(1)
-        if key not in seen:
-            out.append(f"{key}={updates[key]}")
-            seen.add(key)
-        continue
-    out.append(line)
-for key, value in updates.items():
-    if key not in seen:
-        out.append(f"{key}={value}")
-text = "\n".join(out).rstrip() + "\n"
-path.write_text(text)
-print(f"wrote {path}")
-for key in updates:
-    print(f"  {key}={updates[key]}")
+env_file = Path(os.environ["ENV_FILE"])
+write_env(env_file, vite)
+print(f"wrote {env_file}")
+for key, value in vite.items():
+    print(f"  {key}={value}")
+
+server_env = Path(os.environ["ROOT"]) / ".env"
+if server_env.exists():
+    write_env(server_env, {"RPS_RPC_URL": rpc})
+    print(f"updated {server_env} RPS_RPC_URL")
+else:
+    print("Left .env alone because it does not exist. The server does not read .env.local.")
+    print("Local Anvil is already allowed on /rps. Set RPS_RPC_URL in .env only for another RPC.")
 PY

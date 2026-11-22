@@ -24,7 +24,7 @@ npm run rps:dev
 
 Open http://127.0.0.1:5173/rps.
 
-`chain:deploy` writes `contracts/broadcast/local.json`. `chain:env` copies the public addresses into `.env.local` (`VITE_RPS_CHAIN_ID`, `VITE_RPS_RPC_URL`, `VITE_RPS_ADDRESS`, `VITE_USDC_ADDRESS`, `RPS_RPC_URL`) and leaves every other key in that file alone. `.env.local` is gitignored. Vite's project root is `web/`, and its env directory is the repo root, so this one file is enough.
+`chain:deploy` writes `contracts/broadcast/local.json`. `chain:env` copies the public addresses into `.env.local` (`VITE_RPS_CHAIN_ID`, `VITE_RPS_RPC_URL`, `VITE_RPS_ADDRESS`, `VITE_USDC_ADDRESS`) and leaves every other key in that file alone. `.env.local` is gitignored. The Node server does not read it. It still loads `.env` only, the same file as the rest of the app. Vite's project root is `web/`, and its env directory is the repo root, so `.env.local` is enough for the page.
 
 Restart `npm run rps:dev` after `chain:env`. Vite reads env when it starts. `npm run rps:dev` does not need Postgres. The blackjack API is a separate process.
 
@@ -76,7 +76,7 @@ docker build \
 
 Do not deploy `MockUSDC` on a public network. `mint` is open. Do not put Anvil keys in the image or the bundle.
 
-The Node server sets `Content-Security-Policy` on the HTML. `connect-src` always allows `http://127.0.0.1:8545` and `http://localhost:8545`. `RPS_RPC_URL` adds one more origin when it is an `http` or `https` URL with no username. Set it to the same origin baked into `VITE_RPS_RPC_URL`, or the browser will block the RPC. The container does not dial the chain. The player's browser does. Compose passes `RPS_RPC_URL` through for that header.
+The Node server sets `Content-Security-Policy` on the HTML. `/` and `/admin` stay `connect-src 'self'`. `/rps` also allows `http://127.0.0.1:8545` and `http://localhost:8545`. `RPS_RPC_URL` in `.env` or the process environment adds one more origin on `/rps` when it is an `http` or `https` URL with no username. Set it to the same origin baked into `VITE_RPS_RPC_URL` when that origin is not local Anvil, or the browser will block the RPC. The container does not dial the chain. The player's browser does. Compose passes `RPS_RPC_URL` through for that header. `chain:env` updates `RPS_RPC_URL` in `.env` only when that file already exists.
 
 Vite dev has no CSP. The browser check uses Vite for that reason. A static host must set its own `connect-src`. One Cloudflare Pages `_headers` file:
 

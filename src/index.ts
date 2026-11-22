@@ -7,8 +7,6 @@ import { ADMIN_SQL, LEADERBOARD_SQL } from './db/schema.ts';
 import { createPool, migrate } from './db/pool.ts';
 import { casinoShoe } from './game/shoe.ts';
 
-// .env.local wins over .env. A variable already in the process environment wins over both.
-loadDotEnv('.env.local');
 loadDotEnv();
 const config = loadConfig();
 

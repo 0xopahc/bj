@@ -1,16 +1,24 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
-function serveRps(req: { url?: string }): void {
-  const path = req.url?.split('?')[0];
-  if (path !== '/rps' && path !== '/rps/') return;
+const PAGES: Record<string, string> = {
+  '/admin': '/admin.html',
+  '/admin/': '/admin.html',
+  '/rps': '/rps.html',
+  '/rps/': '/rps.html',
+};
+
+function servePage(req: { url?: string }): void {
+  const path = req.url?.split('?')[0] ?? '';
+  const page = PAGES[path];
+  if (!page) return;
   const query = req.url?.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-  req.url = `/rps.html${query}`;
+  req.url = `${page}${query}`;
 }
 
 export default defineConfig({
   root: resolve(__dirname, 'web'),
-  // The project root is web/. Env files stay at the repo root so one .env.local feeds Vite and the API.
+  // Vite's project root is web/. Env files stay at the repo root. The server still loads only .env.
   envDir: resolve(__dirname),
   build: {
     outDir: resolve(__dirname, 'dist/web'),
@@ -25,16 +33,16 @@ export default defineConfig({
   },
   plugins: [
     {
-      name: 'rps-page',
+      name: 'html-routes',
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
-          serveRps(req);
+          servePage(req);
           next();
         });
       },
       configurePreviewServer(server) {
         server.middlewares.use((req, _res, next) => {
-          serveRps(req);
+          servePage(req);
           next();
         });
       },
