@@ -15,6 +15,6 @@ local = "http://127.0.0.1:8545"
 [fmt]
 line_length = 100
 tab_width = 4
-bracket_spacing = true
+bracket_spacing = false
 int_types = "long"
 number_underscore = "thousands"
