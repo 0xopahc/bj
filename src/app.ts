@@ -19,8 +19,13 @@ const CONTENT_TYPES: Record<string, string> = {
   '.woff2': 'font/woff2',
 };
 
-const CSP =
-  "default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'";
+const LOCAL_RPC = ['http://127.0.0.1:8545', 'http://localhost:8545'];
+
+export function contentSecurityPolicy(extraOrigin?: string): string {
+  const origins = ["'self'", ...LOCAL_RPC];
+  if (extraOrigin && !origins.includes(extraOrigin)) origins.push(extraOrigin);
+  return `default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src ${origins.join(' ')}; base-uri 'none'; frame-ancestors 'none'`;
+}
 
 export function createApp(deps: AppDeps): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
@@ -47,7 +52,7 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
   mountPlayer(app, deps);
   mountAdmin(app, deps);
 
-  if (deps.staticDir) mountStatic(app, deps.staticDir);
+  if (deps.staticDir) mountStatic(app, deps.staticDir, deps.rpsRpcUrl);
 
   app.get('/favicon.ico', (c) => c.body(null, 204));
 
@@ -69,9 +74,11 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
   return app;
 }
 
-function mountStatic(app: Hono<AppEnv>, root: string): void {
-  app.get('/', async (c) => sendHtml(c, await readFile(join(root, 'index.html'), 'utf8')));
-  app.get('/admin', async (c) => sendHtml(c, await readFile(join(root, 'admin.html'), 'utf8')));
+function mountStatic(app: Hono<AppEnv>, root: string, extraOrigin?: string): void {
+  const policy = contentSecurityPolicy(extraOrigin);
+  app.get('/', async (c) => sendHtml(c, await readFile(join(root, 'index.html'), 'utf8'), policy));
+  app.get('/admin', async (c) => sendHtml(c, await readFile(join(root, 'admin.html'), 'utf8'), policy));
+  app.get('/rps', async (c) => sendHtml(c, await readFile(join(root, 'rps.html'), 'utf8'), policy));
   app.get('/assets/*', async (c) => {
     const file = resolveAsset(root, c.req.path);
     if (!file) return c.notFound();
@@ -83,8 +90,8 @@ function mountStatic(app: Hono<AppEnv>, root: string): void {
   });
 }
 
-function sendHtml(c: Context, html: string): Response {
-  c.header('Content-Security-Policy', CSP);
+function sendHtml(c: Context, html: string, policy: string): Response {
+  c.header('Content-Security-Policy', policy);
   c.header('Cache-Control', 'no-cache');
   return c.html(html);
 }

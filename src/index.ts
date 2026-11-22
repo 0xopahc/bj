@@ -7,6 +7,8 @@ import { ADMIN_SQL, LEADERBOARD_SQL } from './db/schema.ts';
 import { createPool, migrate } from './db/pool.ts';
 import { casinoShoe } from './game/shoe.ts';
 
+// .env.local wins over .env. A variable already in the process environment wins over both.
+loadDotEnv('.env.local');
 loadDotEnv();
 const config = loadConfig();
 
@@ -31,6 +33,7 @@ const app = createApp({
   shoeSource: casinoShoe,
   cookieSecure: config.cookieSecure,
   ...(config.staticDir ? { staticDir: config.staticDir } : {}),
+  ...(config.rpsRpcUrl ? { rpsRpcUrl: config.rpsRpcUrl } : {}),
 });
 
 const server = serve({ fetch: app.fetch, hostname: '0.0.0.0', port: config.port }, (info) => {

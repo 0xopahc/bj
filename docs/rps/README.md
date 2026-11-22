@@ -95,6 +95,8 @@ npm run chain:deploy
 
 `chain:deploy` writes `contracts/broadcast/local.json` with the token and game addresses. The first Anvil account is the owner. The third Anvil account receives fees. Both keys are Anvil's published defaults and are used only against this local chain.
 
+The browser table is in [ui.md](ui.md). `npm run chain:env` then `npm run rps:dev` serves it at http://127.0.0.1:5173/rps. `npm run rps:check` plays a match in Chromium against a throwaway Anvil.
+
 Mint 100,000 fake USDC to a player. The amount is `100_000_000_000` units.
 
 ```bash
@@ -105,7 +107,6 @@ cast send "$USDC" "mint(address,uint256)" "$PLAYER" 100000000000 \
 
 ## Later
 
-- A browser table that signs with the player's own wallet
 - Best of three
 - A public-network token that is not `MockUSDC`
 - Writing the result onto the fake-chip leaderboard
